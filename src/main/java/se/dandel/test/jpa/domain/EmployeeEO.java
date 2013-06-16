@@ -4,25 +4,29 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "employee")
 public class EmployeeEO {
 	@Id
-	@GeneratedValue
+	@SequenceGenerator(allocationSize = 1, name = "EMPLOYEE_SEQUENCE", sequenceName = "employee_sequence")
+	@GeneratedValue(generator = "EMPLOYEE_SEQUENCE")
 	private Long id;
 
 	private String name;
-	
+
 	@ManyToOne
 	private DepartmentEO department;
 
-	public EmployeeEO() {}
+	public EmployeeEO() {
+	}
 
 	public EmployeeEO(String name, DepartmentEO department) {
 		this.name = name;
 		this.department = department;
 	}
-	
 
 	public EmployeeEO(String name) {
 		this.name = name;
@@ -54,8 +58,7 @@ public class EmployeeEO {
 
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", name=" + name + ", department="
-				+ department.getName() + "]";
+		return "Employee [id=" + id + ", name=" + name + ", department=" + department.getName() + "]";
 	}
 
 }

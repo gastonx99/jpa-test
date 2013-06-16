@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+
 import org.apache.log4j.Logger;
 import org.junit.rules.MethodRule;
-import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
@@ -49,6 +54,8 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	protected Injector injector;
 	private List<Module> modules;
 	private Boolean sqlExplorer;
+	private Connection connection;
+	private Liquibase liquibase;
 
 	public GuiceJpaLiquibaseManager() {
 	}
@@ -80,29 +87,38 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		};
 	}
 
-	@Deprecated
-	public Statement apply(final Statement base, Description description) {
-
-		return new Statement() {
-
-			@Override
-			public void evaluate() throws Throwable {
-				logger.debug("Before evaluating base statement");
-				before();
-				base.evaluate();
-				after();
-				logger.debug("After evaluating base statement");
-			}
-
-		};
-	}
-
 	protected void before() {
 		startupFactory();
 		createAndBegin();
+		liquibaseCreateDatabase();
 		if (isSqlExplorerEnabled()) {
 			openSqlExplorer();
 		}
+	}
+
+	private void liquibaseCreateDatabase() {
+		try {
+			Liquibase liquibase = getLiquibase();
+			liquibase.update(null);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void liquibaseDropDatabase() {
+		try {
+			getLiquibase().dropAll();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private Liquibase getLiquibase() throws LiquibaseException {
+		if (liquibase == null) {
+			JdbcConnection c = new JdbcConnection(connection);
+			liquibase = new Liquibase("change-log.xml", new ClassLoaderResourceAccessor(), c);
+		}
+		return liquibase;
 	}
 
 	private void openSqlExplorer() {
@@ -195,6 +211,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		em = factory.createEntityManager();
 		tx = em.getTransaction();
 		tx.begin();
+		connection = em.unwrap(Connection.class);
 		injector = Guice.createInjector(createModules());
 		injector.injectMembers(target);
 	}
@@ -232,8 +249,10 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	}
 
 	protected void after() {
+		liquibaseDropDatabase();
 		commitAndClose();
 		closeFactory();
+		liquibase = null;
 	}
 
 }

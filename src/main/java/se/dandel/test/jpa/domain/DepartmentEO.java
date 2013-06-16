@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -15,7 +16,8 @@ import javax.persistence.Table;
 public class DepartmentEO {
 
 	@Id
-	@GeneratedValue
+	@SequenceGenerator(allocationSize = 1, name = "DEPARTMENT_SEQUENCE", sequenceName = "department_sequence")
+	@GeneratedValue(generator = "DEPARTMENT_SEQUENCE")
 	private Long id;
 
 	private String name;

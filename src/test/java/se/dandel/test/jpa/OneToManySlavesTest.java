@@ -5,16 +5,21 @@ import static org.junit.Assert.assertNotSame;
 
 import java.util.List;
 
-import javax.persistence.PersistenceUnit;
-
+import org.junit.Rule;
 import org.junit.Test;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
 
-@PersistenceUnit(unitName = "persistenceUnit-hsqldb")
-public class OneToManySlavesTest extends AbstractJpaTest {
+import com.google.inject.Inject;
 
+public class OneToManySlavesTest {
+
+	@Rule
+	@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb")
+	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
+
+	@Inject
 	private DepartmentDAO dao;
 
 	@Test
@@ -24,7 +29,7 @@ public class OneToManySlavesTest extends AbstractJpaTest {
 		department.setName(name);
 		dao.persist(department);
 
-		reset();
+		mgr.reset();
 
 		List<DepartmentEO> list = dao.findAll();
 		assertEquals(1, list.size());
@@ -32,27 +37,23 @@ public class OneToManySlavesTest extends AbstractJpaTest {
 		assertNotSame(department, found);
 		assertEquals(department.getId(), found.getId());
 
-		reset();
+		mgr.reset();
 
 		String newName = "Another department";
 		dao.update(department.getId(), newName);
 
-		reset();
+		mgr.reset();
 
 		list = dao.findAll();
 		found = list.iterator().next();
 		assertEquals(newName, found.getName());
 
-		reset();
+		mgr.reset();
 		dao.delete(department.getId());
 
-		reset();
+		mgr.reset();
 
 		assertEquals(0, dao.findAll().size());
 	}
 
-	@Override
-	protected void setupDaos() {
-		dao = injector.getInstance(DepartmentDAO.class);
-	}
 }

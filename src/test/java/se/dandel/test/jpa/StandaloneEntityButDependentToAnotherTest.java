@@ -3,9 +3,8 @@ package se.dandel.test.jpa;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-import javax.persistence.PersistenceUnit;
-
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
@@ -13,10 +12,16 @@ import se.dandel.test.jpa.dao.EmployeeDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
 import se.dandel.test.jpa.domain.EmployeeEO;
 
-@PersistenceUnit(unitName = "persistenceUnit-hsqldb")
-public class StandaloneEntityButDependentToAnotherTest extends AbstractJpaTest {
+import com.google.inject.Inject;
 
+public class StandaloneEntityButDependentToAnotherTest {
+	@Rule
+	@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb")
+	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
+
+	@Inject
 	private DepartmentDAO departmentDAO;
+	@Inject
 	private EmployeeDAO employeeDAO;
 	private DepartmentEO department;
 
@@ -29,38 +34,32 @@ public class StandaloneEntityButDependentToAnotherTest extends AbstractJpaTest {
 	public void crud() {
 		EmployeeEO employee = employeeDAO.create("A employee", department);
 
-		reset();
+		mgr.reset();
 
 		assertEquals(1, employeeDAO.findAll().size());
 
-		reset();
+		mgr.reset();
 
 		EmployeeEO found = employeeDAO.get(employee.getId());
 		assertNotSame(employee, found);
 		assertEquals(employee.getId(), found.getId());
 
-		reset();
+		mgr.reset();
 
 		String newName = "Another employee";
 		employeeDAO.update(employee.getId(), newName);
 
-		reset();
+		mgr.reset();
 
 		found = employeeDAO.get(employee.getId());
 		assertEquals(newName, found.getName());
 
-		reset();
+		mgr.reset();
 		employeeDAO.delete(employee.getId());
 
-		reset();
+		mgr.reset();
 
 		assertEquals(0, employeeDAO.findAll().size());
-	}
-
-	@Override
-	protected void setupDaos() {
-		departmentDAO = injector.getInstance(DepartmentDAO.class);
-		employeeDAO = injector.getInstance(EmployeeDAO.class);
 	}
 
 }
