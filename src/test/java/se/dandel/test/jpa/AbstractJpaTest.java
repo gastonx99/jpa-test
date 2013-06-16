@@ -1,5 +1,7 @@
 package se.dandel.test.jpa;
 
+import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -23,6 +25,8 @@ public abstract class AbstractJpaTest {
 
 	protected EntityManagerFactory factory;
 
+	protected boolean sqlExplorer;
+
 	protected Injector injector;
 
 	private String persistenceUnitName;
@@ -35,6 +39,15 @@ public abstract class AbstractJpaTest {
 	public void before() {
 		startupFactory();
 		createAndBegin();
+		if (sqlExplorer) {
+			openSqlExplorer();
+		}
+	}
+
+	private void openSqlExplorer() {
+		Map<String, Object> properties = em.getProperties();
+		String url = (String) properties.get("javax.persistence.jdbc.url");
+		org.hsqldb.util.DatabaseManagerSwing.main(new String[] { "--url", url, "--user", "", "--noexit" });
 	}
 
 	@After
@@ -63,7 +76,7 @@ public abstract class AbstractJpaTest {
 				bind(EntityManager.class).toInstance(em);
 			}
 		};
-		injector = Guice.createInjector(module);
+		injector = Guice.createInjector(module, new GuiceModule());
 		setupDaos();
 	}
 
