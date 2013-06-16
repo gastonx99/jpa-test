@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.junit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

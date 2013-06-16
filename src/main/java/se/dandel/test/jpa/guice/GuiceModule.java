@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.guice;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.dao.DepartmentDAOImpl;

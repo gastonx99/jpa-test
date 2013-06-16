@@ -11,6 +11,8 @@ import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.dao.EmployeeDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
 import se.dandel.test.jpa.domain.EmployeeEO;
+import se.dandel.test.jpa.guice.GuiceModule;
+import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 import com.google.inject.Inject;
 

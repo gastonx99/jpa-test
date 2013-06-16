@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.junit;
 
 import java.util.Map;
 
@@ -11,6 +11,8 @@ import javax.persistence.PersistenceUnit;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+
+import se.dandel.test.jpa.guice.GuiceModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
