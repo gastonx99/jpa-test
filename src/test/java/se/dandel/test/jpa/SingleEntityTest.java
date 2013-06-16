@@ -3,6 +3,8 @@ package se.dandel.test.jpa;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
+import javax.persistence.PersistenceException;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -12,6 +14,7 @@ import se.dandel.test.jpa.domain.DepartmentEO;
 import com.google.inject.Inject;
 
 public class SingleEntityTest {
+
 	@Rule
 	@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb")
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
@@ -51,4 +54,10 @@ public class SingleEntityTest {
 		assertEquals(0, dao.findAll().size());
 	}
 
+	@Test(expected = PersistenceException.class)
+	public void nameUniqueness() {
+		dao.create("A department");
+		dao.create("A department");
+		mgr.getEntityManager().flush();
+	}
 }

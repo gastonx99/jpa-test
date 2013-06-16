@@ -58,6 +58,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	private Liquibase liquibase;
 
 	public GuiceJpaLiquibaseManager() {
+		logger.debug("instantiating");
 	}
 
 	public void reset() {
@@ -72,16 +73,20 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	@Override
 	public Statement apply(final Statement base, FrameworkMethod method, final Object target) {
+		logger.debug("Method " + method.getName());
 		return new Statement() {
 
 			@Override
 			public void evaluate() throws Throwable {
-				logger.debug("Before evaluating base statement");
 				GuiceJpaLiquibaseManager.this.target = target;
 				before();
-				base.evaluate();
-				after();
-				logger.debug("After evaluating base statement");
+				logger.debug("Before evaluating base statement");
+				try {
+					base.evaluate();
+					logger.debug("After evaluating base statement");
+				} finally {
+					after();
+				}
 			}
 
 		};
@@ -194,11 +199,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	private void closeFactory() {
 		logger.debug("Closing factory");
 		if (factory != null) {
-			try {
-				factory.close();
-			} catch (Throwable t) {
-				// Silent
-			}
+			factory.close();
 			factory = null;
 		}
 	}
@@ -232,19 +233,19 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		logger.debug("Commit and close");
 		if (tx != null) {
 			try {
-				tx.commit();
-			} catch (Throwable t) {
-				// Silent
+				if (!tx.getRollbackOnly()) {
+					tx.commit();
+				}
+			} finally {
+				tx = null;
 			}
-			tx = null;
 		}
 		if (em != null) {
 			try {
 				em.close();
-			} catch (Throwable t) {
-				// Silent
+			} finally {
+				em = null;
 			}
-			em = null;
 		}
 	}
 
