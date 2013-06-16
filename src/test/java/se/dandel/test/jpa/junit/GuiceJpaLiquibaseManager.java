@@ -27,7 +27,6 @@ import org.junit.runners.model.Statement;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Module;
 
 public class GuiceJpaLiquibaseManager implements MethodRule {
@@ -51,9 +50,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	protected Object target;
 
-	protected Injector injector;
 	private List<Module> modules;
-	private Boolean sqlExplorer;
 	private Connection connection;
 	private Liquibase liquibase;
 
@@ -145,10 +142,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	}
 
 	private boolean isSqlExplorerEnabled() {
-		if (sqlExplorer == null) {
-			sqlExplorer = getConfig().sqlExplorer();
-		}
-		return sqlExplorer;
+		return getConfig().sqlExplorer();
 	}
 
 	private List<Module> getModules() {
@@ -213,8 +207,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		tx = em.getTransaction();
 		tx.begin();
 		connection = em.unwrap(Connection.class);
-		injector = Guice.createInjector(createModules());
-		injector.injectMembers(target);
+		Guice.createInjector(createModules()).injectMembers(target);
 	}
 
 	private Module[] createModules() {
