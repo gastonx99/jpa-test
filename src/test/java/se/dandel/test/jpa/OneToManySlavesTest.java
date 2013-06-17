@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
-import se.dandel.test.jpa.guice.GuiceModule;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 import com.google.inject.Inject;
@@ -18,7 +17,7 @@ import com.google.inject.Inject;
 public class OneToManySlavesTest {
 
 	@Rule
-	@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb")
+	@JpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

@@ -1,5 +1,6 @@
 package se.dandel.test.jpa.junit;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -7,6 +8,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +32,12 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 
 public class GuiceJpaLiquibaseManager implements MethodRule {
-	@Target({ ElementType.FIELD })
+
+	public enum DdlGeneration {
+		DROP_CREATE, NONE, LIQUIBASE;
+	}
+
+	@Target({ ElementType.FIELD, ElementType.ANNOTATION_TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Config {
 
@@ -39,6 +46,10 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		String persistenceUnitName();
 
 		boolean sqlExplorer() default false;
+
+		DdlGeneration ddlGeneration() default DdlGeneration.DROP_CREATE;
+
+		String liquibaseChangelog() default "";
 
 	}
 
@@ -92,7 +103,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	protected void before() {
 		startupFactory();
 		createAndBegin();
-		liquibaseCreateDatabase();
+		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
+			liquibaseCreateDatabase();
+		}
 		if (isSqlExplorerEnabled()) {
 			openSqlExplorer();
 		}
@@ -131,7 +144,15 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	private void startupFactory() {
 		logger.debug("Starting factory");
-		factory = Persistence.createEntityManagerFactory(getPersistenceUnitName());
+		Map<String, String> props = new HashMap<String, String>();
+		String ddlGeneration = "none";
+		switch (getConfig().ddlGeneration()) {
+		case DROP_CREATE:
+			ddlGeneration = "drop-and-create-tables";
+			break;
+		}
+		props.put("eclipselink.ddl-generation", ddlGeneration);
+		factory = Persistence.createEntityManagerFactory(getPersistenceUnitName(), props);
 	}
 
 	private String getPersistenceUnitName() {
@@ -167,6 +188,18 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 					+ Config.class.getName());
 		}
 		Config annotation = f.getAnnotation(Config.class);
+		if (annotation == null) {
+			Annotation[] annotations = f.getAnnotations();
+			for (Annotation a : annotations) {
+				Annotation[] tmp = a.annotationType().getAnnotations();
+				for (Annotation atmp : tmp) {
+					if (atmp.annotationType().equals(Config.class)) {
+						annotation = (Config) atmp;
+						break;
+					}
+				}
+			}
+		}
 		if (annotation == null) {
 			throw new IllegalArgumentException("Field " + f.getName() + " must be annoted with "
 					+ Config.class.getName());
@@ -243,7 +276,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	}
 
 	protected void after() {
-		liquibaseDropDatabase();
+		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
+			liquibaseDropDatabase();
+		}
 		commitAndClose();
 		closeFactory();
 		liquibase = null;

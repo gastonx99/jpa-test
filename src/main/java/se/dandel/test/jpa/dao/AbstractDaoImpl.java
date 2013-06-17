@@ -70,8 +70,12 @@ public abstract class AbstractDaoImpl<T> implements AbstractDAO<T> {
 	 * @see se.dandel.test.jpa.dao.AbstractDAOI#persist(T)
 	 */
 	@Override
-	public void persist(T department) {
-		em().persist(department);
+	public void persist(T entity) {
+		em().persist(entity);
 	}
+
+	public void merge(T entity) {
+		em().merge(entity);
+	};
 
 }

@@ -10,6 +10,8 @@ public interface AbstractDAO<T> {
 
 	public abstract void delete(long id);
 
-	public abstract void persist(T department);
+	public abstract void persist(T entity);
+
+	public abstract void merge(T entity);
 
 }
