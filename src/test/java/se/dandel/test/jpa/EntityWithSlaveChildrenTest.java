@@ -117,4 +117,28 @@ public class EntityWithSlaveChildrenTest {
 		department = departmentDAO.get(department.getId());
 		assertEquals(0, department.getResponsibilities().size());
 	}
+
+	@Test
+	public void merge() {
+		DepartmentEO department = new DepartmentEO("Department");
+		department.getResponsibilities().add(new ResponsibilityEO("A agenda", department));
+		department.getResponsibilities().add(new ResponsibilityEO("Another agenda", department));
+		departmentDAO.persist(department);
+
+		mgr.reset();
+
+		department = departmentDAO.get(department.getId());
+		assertEquals(2, department.getResponsibilities().size());
+
+		mgr.reset();
+
+		List<ResponsibilityEO> list = new ArrayList<ResponsibilityEO>();
+		list.add(new ResponsibilityEO("A agenda", department));
+		department.setResponsibilities(list);
+		departmentDAO.merge(department);
+
+		mgr.reset();
+
+		assertEquals(1, departmentDAO.get(department.getId()).getResponsibilities().size());
+	}
 }

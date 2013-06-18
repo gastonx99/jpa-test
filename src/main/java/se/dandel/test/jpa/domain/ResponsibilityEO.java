@@ -7,7 +7,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "agenda")
+@Table(name = "responsibility")
 public class ResponsibilityEO {
 
 	@Id

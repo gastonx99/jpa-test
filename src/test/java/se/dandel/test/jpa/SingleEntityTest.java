@@ -62,6 +62,6 @@ public class SingleEntityTest {
 		annotation.unique();
 		dao.create("A department");
 		dao.create("A department");
-		mgr.getEntityManager().flush();
+		mgr.reset();
 	}
 }
