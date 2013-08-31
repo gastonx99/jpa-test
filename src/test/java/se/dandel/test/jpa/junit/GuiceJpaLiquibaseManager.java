@@ -28,8 +28,6 @@ import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Module;
 
 public class GuiceJpaLiquibaseManager implements MethodRule {
@@ -66,12 +64,12 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	protected Object target;
 
-	private List<Module> modules;
 	private Connection connection;
 	private Liquibase liquibase;
 	private Boolean databaseAlreadyCreated;
 	private boolean dropBetweenExecutions = false;
 	private List<String> deleteFromTableStatements;
+	private Guicer guicer;
 
 	public GuiceJpaLiquibaseManager() {
 		logger.debug("instantiating");
@@ -89,12 +87,14 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	@Override
 	public Statement apply(final Statement base, FrameworkMethod method, final Object target) {
+		this.target = target;
+		guicer = new Guicer(getModules(), target);
+
 		logger.debug("Method " + method.getName());
 		return new Statement() {
 
 			@Override
 			public void evaluate() throws Throwable {
-				GuiceJpaLiquibaseManager.this.target = target;
 				before();
 				logger.debug("Before evaluating base statement");
 				List<Throwable> throwables = new ArrayList<Throwable>();
@@ -238,14 +238,11 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	private List<Module> getModules() {
 		try {
-			if (modules == null) {
-				List<Module> list = new ArrayList<Module>();
-				for (Class<? extends Module> moduleClazz : getConfig().modules()) {
-					list.add(moduleClazz.newInstance());
-				}
-				modules = list;
+			List<Module> list = new ArrayList<Module>();
+			for (Class<? extends Module> moduleClazz : getConfig().modules()) {
+				list.add(moduleClazz.newInstance());
 			}
-			return modules;
+			return list;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -311,19 +308,8 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		tx = em.getTransaction();
 		tx.begin();
 		connection = em.unwrap(Connection.class);
-		Guice.createInjector(createModules()).injectMembers(target);
-	}
 
-	private Module[] createModules() {
-		List<Module> list = new ArrayList<Module>(getModules());
-		Module module = new AbstractModule() {
-			@Override
-			protected void configure() {
-				bind(EntityManager.class).toInstance(em);
-			}
-		};
-		list.add(module);
-		return list.toArray(new Module[0]);
+		guicer.before(GuicerBeforeAfterContext.of(em));
 	}
 
 	private void commitAndClose() {
