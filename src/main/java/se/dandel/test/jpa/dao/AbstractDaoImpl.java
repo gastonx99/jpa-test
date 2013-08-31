@@ -5,10 +5,13 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.log4j.Logger;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public abstract class AbstractDaoImpl<T> implements AbstractDAO<T> {
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	@Inject
 	protected Provider<EntityManager> entityManagerProvider;
@@ -41,7 +44,9 @@ public abstract class AbstractDaoImpl<T> implements AbstractDAO<T> {
 	}
 
 	protected T internalGet(Object id) {
-		return em().find(persistentClazz, id);
+		EntityManager em = em();
+		logger.debug(em.getTransaction());
+		return em.find(persistentClazz, id);
 	}
 
 	/*
@@ -71,7 +76,9 @@ public abstract class AbstractDaoImpl<T> implements AbstractDAO<T> {
 	 */
 	@Override
 	public void persist(T entity) {
-		em().persist(entity);
+		EntityManager em = em();
+		logger.debug(em.getTransaction());
+		em.persist(entity);
 	}
 
 	public void merge(T entity) {

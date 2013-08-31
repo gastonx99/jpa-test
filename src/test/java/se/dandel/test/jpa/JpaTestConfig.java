@@ -7,10 +7,11 @@ import java.lang.annotation.Target;
 
 import se.dandel.test.jpa.guice.GuiceModule;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
+import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager.DdlGeneration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb")
+@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb", ddlGeneration = DdlGeneration.LIQUIBASE)
 public @interface JpaTestConfig {
 
 }

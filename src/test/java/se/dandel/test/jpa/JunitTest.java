@@ -76,6 +76,13 @@ public class JunitTest {
 	}
 
 	@Test
+	public void firstLevelCacheHit() {
+		DepartmentEO eo = new DepartmentEO("A name");
+		dao.persist(eo);
+		assertTrue(eo == dao.get(eo.getId()));
+	}
+
+	@Test
 	public void instanceAttachmentDetachment() {
 		DepartmentEO eo = new DepartmentEO("A name");
 		dao.persist(eo);

@@ -5,11 +5,11 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
 	<changeSet id="department-sequence" author="gaston">
-		<createSequence sequenceName="department_sequence" />
+		<createSequence sequenceName="department_sequence" startValue="1" />
 	</changeSet>
 
 	<changeSet id="employee-sequence" author="gaston">
-		<createSequence sequenceName="employee_sequence" />
+		<createSequence sequenceName="employee_sequence" startValue="1" />
 	</changeSet>
 
 	<changeSet id="department-table" author="gaston">
@@ -31,6 +31,28 @@
 			<column name="name" type="varchar2(100)" />
 			<column name="department_id" type="long">
 				<constraints foreignKeyName="FK_EMPLOYEE_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
+			</column>
+		</createTable>
+	</changeSet>
+
+	<changeSet id="responsibility-table" author="gaston">
+		<createTable tableName="responsibility">
+			<column name="name" type="varchar2(100)">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="department_id" type="long">
+				<constraints primaryKey="true" foreignKeyName="FK_RESPONSIBILITY_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
+			</column>
+		</createTable>
+	</changeSet>
+
+	<changeSet id="agenda-table" author="gaston">
+		<createTable tableName="agenda">
+			<column name="name" type="varchar2(100)">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="department_id" type="long">
+				<constraints primaryKey="true" foreignKeyName="FK_AGENDA_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
 			</column>
 		</createTable>
 	</changeSet>

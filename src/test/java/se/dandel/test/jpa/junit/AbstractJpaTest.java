@@ -19,6 +19,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+/**
+ * @deprecated
+ */
 public abstract class AbstractJpaTest {
 	protected final Logger logger = Logger.getLogger(getClass());
 

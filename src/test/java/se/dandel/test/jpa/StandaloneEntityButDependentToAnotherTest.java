@@ -22,8 +22,10 @@ public class StandaloneEntityButDependentToAnotherTest {
 
 	@Inject
 	private DepartmentDAO departmentDAO;
+
 	@Inject
 	private EmployeeDAO employeeDAO;
+
 	private DepartmentEO department;
 
 	@Before

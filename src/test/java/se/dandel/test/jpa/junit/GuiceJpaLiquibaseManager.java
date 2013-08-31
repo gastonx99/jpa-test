@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,10 @@ import com.google.inject.Guice;
 import com.google.inject.Module;
 
 public class GuiceJpaLiquibaseManager implements MethodRule {
+
+	private static final String DATABASE_ALREADY_CREATED_TABLENAME = "DATABASE_ALREADY_CREATED_TABLE";
+	private static final String DATABASE_ALREADY_CREATED_TABLE_SQL = "create table "
+			+ DATABASE_ALREADY_CREATED_TABLENAME + " (a integer)";
 
 	public enum DdlGeneration {
 		DROP_CREATE, NONE, LIQUIBASE;
@@ -64,6 +69,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	private List<Module> modules;
 	private Connection connection;
 	private Liquibase liquibase;
+	private Boolean databaseAlreadyCreated;
+	private boolean dropBetweenExecutions = false;
+	private List<String> deleteFromTableStatements;
 
 	public GuiceJpaLiquibaseManager() {
 		logger.debug("instantiating");
@@ -89,11 +97,27 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 				GuiceJpaLiquibaseManager.this.target = target;
 				before();
 				logger.debug("Before evaluating base statement");
+				List<Throwable> throwables = new ArrayList<Throwable>();
 				try {
 					base.evaluate();
 					logger.debug("After evaluating base statement");
+				} catch (Throwable t) {
+					throwables.add(t);
 				} finally {
-					after();
+					try {
+						after();
+					} catch (Throwable t) {
+						throwables.add(t);
+					}
+				}
+				if (!throwables.isEmpty()) {
+					if (throwables.size() == 1) {
+						throw throwables.get(0);
+					} else {
+						// Currently disregarding the exception thrown in the
+						// after() method
+						throw throwables.get(0);
+					}
 				}
 			}
 
@@ -104,25 +128,70 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		startupFactory();
 		createAndBegin();
 		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
-			liquibaseCreateDatabase();
+			if (!isDatabaseAlreadyCreated()) {
+				liquibaseCreateDatabase();
+				createDatabaseAlreadyCreatedTable();
+			}
 		}
 		if (isSqlExplorerEnabled()) {
 			openSqlExplorer();
 		}
 	}
 
+	private void createDatabaseAlreadyCreatedTable() {
+		java.sql.Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			statement.execute(DATABASE_ALREADY_CREATED_TABLE_SQL);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				statement.close();
+			} catch (Exception e) {
+				// fall through
+			}
+		}
+	}
+
+	private boolean isDatabaseAlreadyCreated() {
+		if (databaseAlreadyCreated != null) {
+			return databaseAlreadyCreated;
+		}
+		ResultSet tables = null;
+		try {
+			logger.debug("Fetching metadata to check if database is already created");
+			tables = connection.getMetaData().getTables(null, null, DATABASE_ALREADY_CREATED_TABLENAME, null);
+			logger.debug("Fetced metadata");
+			databaseAlreadyCreated = tables.next();
+			return databaseAlreadyCreated;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				tables.close();
+			} catch (Exception e) {
+				// fall through
+			}
+		}
+	}
+
 	private void liquibaseCreateDatabase() {
+		logger.debug("Creating database with liquibase");
 		try {
 			Liquibase liquibase = getLiquibase();
 			liquibase.update(null);
+			logger.debug("Database created");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private void liquibaseDropDatabase() {
+		logger.debug("Dropping database with liquibase");
 		try {
 			getLiquibase().dropAll();
+			logger.debug("Database dropped");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -153,6 +222,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		}
 		props.put("eclipselink.ddl-generation", ddlGeneration);
 		factory = Persistence.createEntityManagerFactory(getPersistenceUnitName(), props);
+		logger.debug("Factory started");
 	}
 
 	private String getPersistenceUnitName() {
@@ -237,6 +307,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 			throw new IllegalStateException("Manager " + em + " and tx " + tx + " should all be null");
 		}
 		em = factory.createEntityManager();
+		logger.debug("Factory created");
 		tx = em.getTransaction();
 		tx.begin();
 		connection = em.unwrap(Connection.class);
@@ -276,12 +347,81 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	}
 
 	protected void after() {
-		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
-			liquibaseDropDatabase();
-		}
 		commitAndClose();
+		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
+			if (dropBetweenExecutions) {
+				liquibaseDropDatabase();
+			} else {
+				deleteFromAllTables();
+			}
+		}
 		closeFactory();
 		liquibase = null;
+	}
+
+	private void deleteFromAllTables() {
+		logger.debug("Deleting from all tables");
+		java.sql.Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			deleteFromTables(statement, getDeleteFromTableStatements(), 0);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				statement.close();
+			} catch (Exception e) {
+				// fall through
+			}
+		}
+		logger.debug("Deleted from all tables");
+	}
+
+	private void deleteFromTables(java.sql.Statement statement, List<String> stmts, int statementsExecuted) {
+		List<String> goodStatements = new ArrayList<String>();
+		try {
+			for (String str : stmts) {
+				logger.debug("Executing " + str);
+				statement.execute(str);
+				connection.commit();
+				goodStatements.add(str);
+			}
+		} catch (Exception e) {
+			int newStatementsExecuted = goodStatements.size();
+			if (goodStatements.size() == statementsExecuted) {
+				throw new RuntimeException(e);
+			}
+			String badStatement = stmts.get(goodStatements.size());
+			goodStatements.addAll(stmts.subList(goodStatements.size() + 1, stmts.size()));
+			goodStatements.add(badStatement);
+			deleteFromTableStatements = goodStatements;
+			deleteFromTables(statement, goodStatements, newStatementsExecuted);
+		}
+	}
+
+	private List<String> getDeleteFromTableStatements() {
+		deleteFromTableStatements = new ArrayList<String>();
+		ResultSet tables = null;
+		try {
+			logger.debug("Fetching metadata to check if database is already created");
+			tables = connection.getMetaData().getTables(null, null, null, null);
+			while (tables.next()) {
+				String tableType = tables.getString("TABLE_TYPE");
+				if ("TABLE".equals(tableType)) {
+					deleteFromTableStatements.add("delete from " + tables.getString("TABLE_NAME"));
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				tables.close();
+			} catch (Exception e) {
+				// fall through
+			}
+		}
+
+		return deleteFromTableStatements;
 	}
 
 }
