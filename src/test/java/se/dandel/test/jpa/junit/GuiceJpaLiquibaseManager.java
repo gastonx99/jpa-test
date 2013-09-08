@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,23 +17,21 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
-
 import org.apache.log4j.Logger;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
+import se.dandel.test.jpa.junit.beforeafter.DatabaseCreator;
+import se.dandel.test.jpa.junit.beforeafter.DatabaseCreatorBeforeAfterContext;
+import se.dandel.test.jpa.junit.beforeafter.Dataloader;
+import se.dandel.test.jpa.junit.beforeafter.DataloaderBeforeAfterContext;
+import se.dandel.test.jpa.junit.beforeafter.Guicer;
+import se.dandel.test.jpa.junit.beforeafter.GuicerBeforeAfterContext;
+
 import com.google.inject.Module;
 
 public class GuiceJpaLiquibaseManager implements MethodRule {
-
-	private static final String DATABASE_ALREADY_CREATED_TABLENAME = "DATABASE_ALREADY_CREATED_TABLE";
-	private static final String DATABASE_ALREADY_CREATED_TABLE_SQL = "create table "
-			+ DATABASE_ALREADY_CREATED_TABLENAME + " (a integer)";
 
 	public enum DdlGeneration {
 		DROP_CREATE, NONE, LIQUIBASE;
@@ -62,14 +59,14 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	protected EntityManager em;
 	protected EntityTransaction tx;
 
+	private Config config;
+
 	protected Object target;
 
 	private Connection connection;
-	private Liquibase liquibase;
-	private Boolean databaseAlreadyCreated;
-	private boolean dropBetweenExecutions = false;
-	private List<String> deleteFromTableStatements;
 	private Guicer guicer;
+	private Dataloader dataloader;
+	private DatabaseCreator databaseCreator;
 
 	public GuiceJpaLiquibaseManager() {
 		logger.debug("instantiating");
@@ -88,7 +85,10 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	@Override
 	public Statement apply(final Statement base, FrameworkMethod method, final Object target) {
 		this.target = target;
-		guicer = new Guicer(getModules(), target);
+		config = loadConfig();
+		guicer = new Guicer(config.modules(), target);
+		dataloader = new Dataloader();
+		databaseCreator = new DatabaseCreator(DdlGeneration.LIQUIBASE.equals(config.ddlGeneration()));
 
 		logger.debug("Method " + method.getName());
 		return new Statement() {
@@ -127,82 +127,11 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 	protected void before() {
 		startupFactory();
 		createAndBegin();
-		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
-			if (!isDatabaseAlreadyCreated()) {
-				liquibaseCreateDatabase();
-				createDatabaseAlreadyCreatedTable();
-			}
-		}
+
+		databaseCreator.before(DatabaseCreatorBeforeAfterContext.of(connection));
 		if (isSqlExplorerEnabled()) {
 			openSqlExplorer();
 		}
-	}
-
-	private void createDatabaseAlreadyCreatedTable() {
-		java.sql.Statement statement = null;
-		try {
-			statement = connection.createStatement();
-			statement.execute(DATABASE_ALREADY_CREATED_TABLE_SQL);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				statement.close();
-			} catch (Exception e) {
-				// fall through
-			}
-		}
-	}
-
-	private boolean isDatabaseAlreadyCreated() {
-		if (databaseAlreadyCreated != null) {
-			return databaseAlreadyCreated;
-		}
-		ResultSet tables = null;
-		try {
-			logger.debug("Fetching metadata to check if database is already created");
-			tables = connection.getMetaData().getTables(null, null, DATABASE_ALREADY_CREATED_TABLENAME, null);
-			logger.debug("Fetced metadata");
-			databaseAlreadyCreated = tables.next();
-			return databaseAlreadyCreated;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				tables.close();
-			} catch (Exception e) {
-				// fall through
-			}
-		}
-	}
-
-	private void liquibaseCreateDatabase() {
-		logger.debug("Creating database with liquibase");
-		try {
-			Liquibase liquibase = getLiquibase();
-			liquibase.update(null);
-			logger.debug("Database created");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void liquibaseDropDatabase() {
-		logger.debug("Dropping database with liquibase");
-		try {
-			getLiquibase().dropAll();
-			logger.debug("Database dropped");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private Liquibase getLiquibase() throws LiquibaseException {
-		if (liquibase == null) {
-			JdbcConnection c = new JdbcConnection(connection);
-			liquibase = new Liquibase("change-log.xml", new ClassLoaderResourceAccessor(), c);
-		}
-		return liquibase;
 	}
 
 	private void openSqlExplorer() {
@@ -215,7 +144,7 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 		logger.debug("Starting factory");
 		Map<String, String> props = new HashMap<String, String>();
 		String ddlGeneration = "none";
-		switch (getConfig().ddlGeneration()) {
+		switch (config.ddlGeneration()) {
 		case DROP_CREATE:
 			ddlGeneration = "drop-and-create-tables";
 			break;
@@ -227,28 +156,16 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	private String getPersistenceUnitName() {
 		if (persistenceUnitName == null) {
-			persistenceUnitName = getConfig().persistenceUnitName();
+			persistenceUnitName = config.persistenceUnitName();
 		}
 		return persistenceUnitName;
 	}
 
 	private boolean isSqlExplorerEnabled() {
-		return getConfig().sqlExplorer();
+		return config.sqlExplorer();
 	}
 
-	private List<Module> getModules() {
-		try {
-			List<Module> list = new ArrayList<Module>();
-			for (Class<? extends Module> moduleClazz : getConfig().modules()) {
-				list.add(moduleClazz.newInstance());
-			}
-			return list;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private Config getConfig() {
+	private Config loadConfig() {
 		Field f = getConfigField();
 		if (f == null) {
 			throw new IllegalArgumentException("A " + getClass().getName() + " field must exist and be annotated with "
@@ -334,80 +251,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	protected void after() {
 		commitAndClose();
-		if (DdlGeneration.LIQUIBASE.equals(getConfig().ddlGeneration())) {
-			if (dropBetweenExecutions) {
-				liquibaseDropDatabase();
-			} else {
-				deleteFromAllTables();
-			}
-		}
+		dataloader.after(DataloaderBeforeAfterContext.of(connection));
+		databaseCreator.after(DatabaseCreatorBeforeAfterContext.of(connection));
 		closeFactory();
-		liquibase = null;
-	}
-
-	private void deleteFromAllTables() {
-		logger.debug("Deleting from all tables");
-		java.sql.Statement statement = null;
-		try {
-			statement = connection.createStatement();
-			deleteFromTables(statement, getDeleteFromTableStatements(), 0);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				statement.close();
-			} catch (Exception e) {
-				// fall through
-			}
-		}
-		logger.debug("Deleted from all tables");
-	}
-
-	private void deleteFromTables(java.sql.Statement statement, List<String> stmts, int statementsExecuted) {
-		List<String> goodStatements = new ArrayList<String>();
-		try {
-			for (String str : stmts) {
-				logger.debug("Executing " + str);
-				statement.execute(str);
-				connection.commit();
-				goodStatements.add(str);
-			}
-		} catch (Exception e) {
-			int newStatementsExecuted = goodStatements.size();
-			if (goodStatements.size() == statementsExecuted) {
-				throw new RuntimeException(e);
-			}
-			String badStatement = stmts.get(goodStatements.size());
-			goodStatements.addAll(stmts.subList(goodStatements.size() + 1, stmts.size()));
-			goodStatements.add(badStatement);
-			deleteFromTableStatements = goodStatements;
-			deleteFromTables(statement, goodStatements, newStatementsExecuted);
-		}
-	}
-
-	private List<String> getDeleteFromTableStatements() {
-		deleteFromTableStatements = new ArrayList<String>();
-		ResultSet tables = null;
-		try {
-			logger.debug("Fetching metadata to check if database is already created");
-			tables = connection.getMetaData().getTables(null, null, null, null);
-			while (tables.next()) {
-				String tableType = tables.getString("TABLE_TYPE");
-				if ("TABLE".equals(tableType)) {
-					deleteFromTableStatements.add("delete from " + tables.getString("TABLE_NAME"));
-				}
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				tables.close();
-			} catch (Exception e) {
-				// fall through
-			}
-		}
-
-		return deleteFromTableStatements;
 	}
 
 }

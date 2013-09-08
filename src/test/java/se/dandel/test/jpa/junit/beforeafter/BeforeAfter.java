@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.junit;
+package se.dandel.test.jpa.junit.beforeafter;
 
 public interface BeforeAfter<T extends BeforeAfterContext> {
 

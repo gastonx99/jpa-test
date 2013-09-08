@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.junit;
+package se.dandel.test.jpa.junit.beforeafter;
 
 import javax.persistence.EntityManager;
 
