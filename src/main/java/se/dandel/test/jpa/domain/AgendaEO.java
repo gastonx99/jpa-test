@@ -6,38 +6,44 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 @Entity
 @Table(name = "agenda")
 public class AgendaEO {
 
-	@Id
-	private String name;
+    @Id
+    private String name;
 
-	@ManyToOne
-	@Id
-	@JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
-	private DepartmentEO department;
+    @ManyToOne
+    @Id
+    @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
+    private DepartmentEO department;
 
-	@SuppressWarnings("unused")
-	private AgendaEO() {
+    @SuppressWarnings("unused")
+    private AgendaEO() {
 
-	}
+    }
 
-	public AgendaEO(String name, DepartmentEO department) {
-		this.name = name;
-		this.department = department;
-	}
+    public AgendaEO(String name, DepartmentEO department) {
+        this.name = name;
+        this.department = department;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public DepartmentEO getDepartment() {
-		return department;
-	}
+    public DepartmentEO getDepartment() {
+        return department;
+    }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 }

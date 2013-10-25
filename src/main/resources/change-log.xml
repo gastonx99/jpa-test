@@ -49,10 +49,10 @@
 	<changeSet id="agenda-table" author="gaston">
 		<createTable tableName="agenda">
 			<column name="name" type="varchar2(100)">
-				<constraints primaryKey="true" />
+				<constraints primaryKey="false" />
 			</column>
 			<column name="department_id" type="long">
-				<constraints primaryKey="true" foreignKeyName="FK_AGENDA_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
+				<constraints primaryKey="false" foreignKeyName="FK_AGENDA_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
 			</column>
 		</createTable>
 	</changeSet>

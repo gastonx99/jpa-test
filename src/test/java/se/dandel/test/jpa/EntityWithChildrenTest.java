@@ -17,33 +17,32 @@ import com.google.inject.Inject;
 
 public class EntityWithChildrenTest {
 
-	@Rule
-	@JpaTestConfig
-	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
+    @Rule
+    @JpaTestConfig
+    public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
-	@Inject
-	private DepartmentDAO departmentDAO;
+    @Inject
+    private DepartmentDAO departmentDAO;
 
-	@Inject
-	private EmployeeDAO employeeDAO;
+    @Inject
+    private EmployeeDAO employeeDAO;
 
-	@Test
-	public void aChild() {
-		DepartmentEO department = new DepartmentEO();
-		department.setName("Department");
-		departmentDAO.persist(department);
+    @Test
+    public void aChild() {
+        DepartmentEO department = new DepartmentEO();
+        department.setName("Department");
+        departmentDAO.persist(department);
 
-		EmployeeEO employee = new EmployeeEO();
-		employee.setName("Gaston");
-		department.addEmployee(employee);
+        EmployeeEO employee = new EmployeeEO();
+        employee.setName("Gaston");
+        department.addEmployee(employee);
 
-		mgr.reset();
+        mgr.reset();
 
-		List<EmployeeEO> list = employeeDAO.findAll();
-		assertEquals(1, list.size());
+        List<EmployeeEO> list = employeeDAO.findAll();
+        assertEquals(1, list.size());
 
-		DepartmentEO found = departmentDAO.get(department.getId());
-		assertEquals(department.getName(), found.getName());
-
-	}
+        DepartmentEO found = departmentDAO.get(department.getId());
+        assertEquals(department.getName(), found.getName());
+    }
 }
