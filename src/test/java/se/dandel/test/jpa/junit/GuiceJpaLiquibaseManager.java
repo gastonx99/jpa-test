@@ -87,7 +87,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
         this.target = target;
         config = getConfig();
         guicer = new Guicer(config.modules(), target);
-        dataloader = new Dataloader(config, getDataResource());
+        if (getDataResource() != null) {
+            dataloader = new Dataloader(config, getDataResource());
+        }
         databaseCreator = new DatabaseCreator(config);
 
         logger.debug("Method " + method.getName());
@@ -129,7 +131,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
         createAndBegin();
 
         databaseCreator.before(DatabaseCreatorBeforeAfterContext.of(connection));
-        dataloader.before(DataloaderBeforeAfterContext.of(connection));
+        if (dataloader != null) {
+            dataloader.before(DataloaderBeforeAfterContext.of(connection));
+        }
         if (isSqlExplorerEnabled()) {
             openSqlExplorer();
         }
@@ -269,7 +273,9 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
     protected void after() {
         if (factory != null) {
             commitAndClose();
-            dataloader.after(DataloaderBeforeAfterContext.of(connection));
+            if (dataloader != null) {
+                dataloader.after(DataloaderBeforeAfterContext.of(connection));
+            }
             databaseCreator.after(DatabaseCreatorBeforeAfterContext.of(connection));
             closeFactory();
         }

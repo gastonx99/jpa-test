@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import se.dandel.test.jpa.domain.DepartmentEO;
 
@@ -34,7 +36,7 @@ public class DepartmentDAOImpl extends AbstractDaoImpl<DepartmentEO> implements 
     }
 
     @Override
-    public DepartmentEO findWithOptimalEagerFetch(long id) {
+    public DepartmentEO findWithEagerFetch(long id) {
         String queryStr = "select d from DepartmentEO d join fetch d.employees join fetch d.agendas where d.id = :id";
 
         Query query = em().createQuery(queryStr);
@@ -43,11 +45,19 @@ public class DepartmentDAOImpl extends AbstractDaoImpl<DepartmentEO> implements 
     }
 
     @Override
-    public List<DepartmentEO> findWithOptimalEagerFetch(Long... id) {
+    public List<DepartmentEO> findWithEagerFetch(Long... id) {
         String queryStr = "select distinct d from DepartmentEO d join fetch d.employees join fetch d.agendas where d.id in :id";
         Query query = em().createQuery(queryStr);
         query.setParameter("id", Arrays.asList(id));
         return listResult(query);
+    }
+
+    @Override
+    public List<DepartmentEO> findAllReadOnly() {
+        CriteriaBuilder cb = em().getCriteriaBuilder();
+        CriteriaQuery<DepartmentEO> cq = cb.createQuery(DepartmentEO.class);
+        cq.select(cq.from(DepartmentEO.class));
+        return em().createQuery(cq).setHint("eclipselink.read-only", "true").getResultList();
     }
 
 }

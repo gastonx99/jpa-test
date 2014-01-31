@@ -6,12 +6,13 @@ import se.dandel.test.jpa.domain.DepartmentEO;
 
 public interface DepartmentDAO extends AbstractDAO<DepartmentEO> {
 
-    public abstract DepartmentEO create(String name);
+    DepartmentEO create(String name);
 
-    public abstract void update(long id, String name);
+    void update(long id, String name);
 
-    public abstract DepartmentEO findWithOptimalEagerFetch(long id);
+    DepartmentEO findWithEagerFetch(long id);
 
-    public abstract List<DepartmentEO> findWithOptimalEagerFetch(Long... id);
+    List<DepartmentEO> findWithEagerFetch(Long... id);
 
+    List<DepartmentEO> findAllReadOnly();
 }

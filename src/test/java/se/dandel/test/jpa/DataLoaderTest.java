@@ -9,7 +9,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
-import se.dandel.test.jpa.dao.EmployeeDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
 import se.dandel.test.jpa.junit.DataResource;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
@@ -26,12 +25,9 @@ public class DataLoaderTest {
     @Inject
     private DepartmentDAO departmentDAO;
 
-    @Inject
-    private EmployeeDAO employeeDAO;
-
     @Test
     public void singleEagerFetch() {
-        DepartmentEO found = departmentDAO.findWithOptimalEagerFetch(1L);
+        DepartmentEO found = departmentDAO.findWithEagerFetch(1L);
         assertEquals("My department", found.getName());
         assertEquals(2, found.getEmployees().size());
         assertEquals(3, found.getAgendas().size());
@@ -39,7 +35,7 @@ public class DataLoaderTest {
 
     @Test
     public void inClauseEagerFetch() {
-        List<DepartmentEO> founds = departmentDAO.findWithOptimalEagerFetch(1L, 2L);
+        List<DepartmentEO> founds = departmentDAO.findWithEagerFetch(1L, 2L);
 
         assertEquals(2, founds.size());
         Iterator<DepartmentEO> it = founds.iterator();
