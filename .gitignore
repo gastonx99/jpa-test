@@ -7,6 +7,7 @@ target
 *.ear
 
 # Eclipse
+.project
 .settings
 .classpath
 bin
