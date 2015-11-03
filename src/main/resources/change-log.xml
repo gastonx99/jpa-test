@@ -3,6 +3,13 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+         
+         
+	<changeSet id="test" author="test">
+		<createTable tableName="test">
+			<column name="test" type="varchar2(1 CHAR)" />
+		</createTable>
+	</changeSet>
 
 	<changeSet id="department-sequence" author="gaston">
 		<createSequence sequenceName="department_sequence" startValue="1" />
@@ -14,22 +21,25 @@
 
 	<changeSet id="department-table" author="gaston">
 		<createTable tableName="department">
-			<column name="id" type="long">
-				<constraints primaryKey="true" />
+			<column name="id" type="NUMBER">
+				<constraints primaryKey="true" nullable="false" />
 			</column>
-			<column name="name" type="varchar2(100)">
-				<constraints unique="true" />
+			<column name="name" type="varchar2(100 CHAR)">
+				<constraints unique="true" nullable="false" />
+			</column>
+			<column name="version" type="NUMBER">
+				<constraints nullable="false" />
 			</column>
 		</createTable>
 	</changeSet>
 
 	<changeSet id="employee-table" author="gaston">
 		<createTable tableName="employee">
-			<column name="id" type="long">
+			<column name="id" type="NUMBER">
 				<constraints primaryKey="true" />
 			</column>
 			<column name="name" type="varchar2(100)" />
-			<column name="department_id" type="long">
+			<column name="department_id" type="NUMBER">
 				<constraints foreignKeyName="FK_EMPLOYEE_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
 			</column>
 		</createTable>
@@ -40,7 +50,7 @@
 			<column name="name" type="varchar2(100)">
 				<constraints primaryKey="true" />
 			</column>
-			<column name="department_id" type="long">
+			<column name="department_id" type="NUMBER">
 				<constraints primaryKey="true" foreignKeyName="FK_RESPONSIBILITY_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
 			</column>
 		</createTable>
@@ -51,10 +61,11 @@
 			<column name="name" type="varchar2(100)">
 				<constraints primaryKey="false" />
 			</column>
-			<column name="department_id" type="long">
+			<column name="department_id" type="NUMBER">
 				<constraints primaryKey="false" foreignKeyName="FK_AGENDA_DEPARTMENT_ID" references="DEPARTMENT(ID)" />
 			</column>
 		</createTable>
 	</changeSet>
+
 
 </databaseChangeLog>

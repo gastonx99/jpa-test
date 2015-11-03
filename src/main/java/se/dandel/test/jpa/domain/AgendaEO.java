@@ -1,9 +1,10 @@
 package se.dandel.test.jpa.domain;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -12,38 +13,34 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Table(name = "agenda")
 public class AgendaEO {
 
-    @Id
-    private String name;
+	@EmbeddedId
+	private AgendaPk pk;
 
-    @ManyToOne
-    @Id
-    @JoinColumn(name = "DEPARTMENT_ID", referencedColumnName = "ID")
-    private DepartmentEO department;
+	@MapsId("departmentId")
+	@ManyToOne
+	@PrimaryKeyJoinColumn(name = "DEPARTMENT_ID")
+	private DepartmentEO department;
 
-    @SuppressWarnings("unused")
-    private AgendaEO() {
+	@SuppressWarnings("unused")
+	private AgendaEO() {
 
-    }
+	}
 
-    public AgendaEO(String name, DepartmentEO department) {
-        this.name = name;
-        this.department = department;
-    }
+	public AgendaEO(String name, DepartmentEO department) {
+		this.pk = new AgendaPk(department.getId(), name);
+		this.department = department;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return pk.getName();
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public DepartmentEO getDepartment() {
+		return department;
+	}
 
-    public DepartmentEO getDepartment() {
-        return department;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 }

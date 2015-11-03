@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -20,78 +21,85 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Table(name = "department")
 public class DepartmentEO {
 
-    @Id
-    @SequenceGenerator(allocationSize = 1, name = "DEPARTMENT_SEQUENCE", sequenceName = "department_sequence")
-    @GeneratedValue(generator = "DEPARTMENT_SEQUENCE")
-    private Long id;
+	@Id
+	@SequenceGenerator(allocationSize = 1, name = "DEPARTMENT_SEQUENCE", sequenceName = "department_sequence")
+	@GeneratedValue(generator = "DEPARTMENT_SEQUENCE")
+	private Long id;
 
-    @Column(unique = true)
-    private String name;
+	@Column(unique = true)
+	private String name;
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<EmployeeEO> employees = new ArrayList<EmployeeEO>();
+	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	private List<EmployeeEO> employees = new ArrayList<EmployeeEO>();
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<AgendaEO> agendas = new ArrayList<AgendaEO>();
+	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	private List<AgendaEO> agendas = new ArrayList<AgendaEO>();
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<ResponsibilityEO> responsibilities = new ArrayList<ResponsibilityEO>();
+	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	private List<ResponsibilityEO> responsibilities = new ArrayList<ResponsibilityEO>();
 
-    public DepartmentEO() {
-        super();
-    }
+	@Version
+	private long version;
 
-    public DepartmentEO(String name) {
-        this.name = name;
-    }
+	public long getVersion() {
+		return version;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public DepartmentEO() {
+		super();
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public DepartmentEO(String name) {
+		this.name = name;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public List<EmployeeEO> getEmployees() {
-        return new ArrayList<EmployeeEO>(employees);
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void addEmployee(EmployeeEO employee) {
-        employees.add(employee);
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void addAgenda(AgendaEO agenda) {
-        agendas.add(agenda);
-    }
+	public List<EmployeeEO> getEmployees() {
+		return new ArrayList<EmployeeEO>(employees);
+	}
 
-    public void removeAgenda(AgendaEO agenda) {
-        agendas.remove(agenda);
-    }
+	public void addEmployee(EmployeeEO employee) {
+		employees.add(employee);
+	}
 
-    public List<AgendaEO> getAgendas() {
-        return Collections.unmodifiableList(agendas);
-    }
+	public void addAgenda(AgendaEO agenda) {
+		agendas.add(agenda);
+	}
 
-    public List<ResponsibilityEO> getResponsibilities() {
-        return responsibilities;
-    }
+	public void removeAgenda(AgendaEO agenda) {
+		agendas.remove(agenda);
+	}
 
-    public void setResponsibilities(List<ResponsibilityEO> responsibilities) {
-        this.responsibilities = responsibilities;
-    }
+	public List<AgendaEO> getAgendas() {
+		return Collections.unmodifiableList(agendas);
+	}
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
+	public List<ResponsibilityEO> getResponsibilities() {
+		return responsibilities;
+	}
+
+	public void setResponsibilities(List<ResponsibilityEO> responsibilities) {
+		this.responsibilities = responsibilities;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
 }
