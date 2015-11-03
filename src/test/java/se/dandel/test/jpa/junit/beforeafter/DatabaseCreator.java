@@ -3,15 +3,14 @@ package se.dandel.test.jpa.junit.beforeafter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
+import org.apache.log4j.Logger;
+
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.logging.LogFactory;
 import liquibase.logging.LogLevel;
 import liquibase.resource.ClassLoaderResourceAccessor;
-
-import org.apache.log4j.Logger;
-
 import se.dandel.test.jpa.junit.ConfigHelper;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager.Config;
 
@@ -23,7 +22,7 @@ public class DatabaseCreator implements BeforeAfter<DatabaseCreatorBeforeAfterCo
 
 	private Boolean databaseAlreadyCreated;
 	private boolean createDatabaseWithLiquibase;
-	private boolean dropBetweenExecutions = false;
+	private boolean dropBetweenExecutions = true;
 	private String changeLogFile = "change-log.xml";
 
 	public DatabaseCreator(Config config) {
