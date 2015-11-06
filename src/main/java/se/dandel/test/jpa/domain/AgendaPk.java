@@ -2,7 +2,6 @@ package se.dandel.test.jpa.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
@@ -12,7 +11,6 @@ public class AgendaPk implements Serializable {
 
 	private String name;
 
-	@Column(name = "DEPARTMENT_ID")
 	private Long departmentId;
 
 	public AgendaPk() {

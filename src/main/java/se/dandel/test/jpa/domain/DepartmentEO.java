@@ -102,4 +102,8 @@ public class DepartmentEO {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	public void deleteEmployee(EmployeeEO employee) {
+		this.employees.remove(employee);
+	}
+
 }

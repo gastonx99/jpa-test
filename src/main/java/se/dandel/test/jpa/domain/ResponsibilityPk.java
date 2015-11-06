@@ -2,7 +2,6 @@ package se.dandel.test.jpa.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
@@ -10,7 +9,6 @@ public class ResponsibilityPk implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "DEPARTMENT_ID")
 	private Long departmentId;
 
 	private String name;

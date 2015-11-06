@@ -1,11 +1,18 @@
 package se.dandel.test.jpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.eclipse.persistence.sessions.SessionProfiler;
+import org.eclipse.persistence.tools.profiler.PerformanceMonitor;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.inject.Inject;
 
 import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.dao.EmployeeDAO;
@@ -13,36 +20,77 @@ import se.dandel.test.jpa.domain.DepartmentEO;
 import se.dandel.test.jpa.domain.EmployeeEO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
-import com.google.inject.Inject;
-
 public class EntityWithChildrenTest {
 
-    @Rule
-    @JpaTestConfig
-    public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
+	@Rule
+	@JpaTestConfig
+	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
-    @Inject
-    private DepartmentDAO departmentDAO;
+	@Inject
+	private DepartmentDAO departmentDAO;
 
-    @Inject
-    private EmployeeDAO employeeDAO;
+	@Inject
+	private EmployeeDAO employeeDAO;
 
-    @Test
-    public void aChild() {
-        DepartmentEO department = new DepartmentEO();
-        department.setName("Department");
-        departmentDAO.persist(department);
+	private Long departmentId;
 
-        EmployeeEO employee = new EmployeeEO();
-        employee.setName("Gaston");
-        department.addEmployee(employee);
+	@Before
+	public void before() {
+		DepartmentEO department = new DepartmentEO();
+		department.setName("Department");
+		departmentDAO.persist(department);
+		mgr.reset();
+		departmentId = department.getId();
+	}
 
-        mgr.reset();
+	@Test
+	public void aChildsLifecycleManagedByParent() {
+		System.out.println("cachehits: " + getCacheHits());
 
-        List<EmployeeEO> list = employeeDAO.findAll();
-        assertEquals(1, list.size());
+		// Add child
+		DepartmentEO department = departmentDAO.get(departmentId);
+		EmployeeEO employee = new EmployeeEO();
+		employee.setDepartment(department);
+		employee.setName("Gaston");
+		department.addEmployee(employee);
 
-        DepartmentEO found = departmentDAO.get(department.getId());
-        assertEquals(department.getName(), found.getName());
-    }
+		mgr.reset();
+
+		department = departmentDAO.get(departmentId);
+		List<EmployeeEO> list = department.getEmployees();
+
+		assertEquals(1, list.size());
+		EmployeeEO foundEmployee = list.get(0);
+		assertTrue(foundEmployee.getId() > 0);
+		assertNotNull(foundEmployee.getDepartment());
+
+		DepartmentEO found = departmentDAO.get(department.getId());
+		assertEquals(department.getName(), found.getName());
+
+		// Update child
+		foundEmployee.setName("Gurra");
+
+		mgr.reset();
+
+		department = departmentDAO.get(departmentId);
+		foundEmployee = department.getEmployees().get(0);
+
+		assertEquals("Gurra", foundEmployee.getName());
+
+		department.deleteEmployee(foundEmployee);
+
+		mgr.reset();
+
+		department = departmentDAO.get(departmentId);
+		assertTrue(department.getEmployees().isEmpty());
+
+		System.out.println("cachehits: " + getCacheHits());
+
+	}
+
+	private Long getCacheHits() {
+		Long cacheHits = (Long) ((PerformanceMonitor) mgr.getSession().getProfiler()).getOperationTimings()
+				.get(SessionProfiler.CacheHits);
+		return cacheHits;
+	}
 }

@@ -7,13 +7,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.google.inject.Inject;
+
 import se.dandel.test.jpa.dao.DepartmentDAO;
 import se.dandel.test.jpa.dao.EmployeeDAO;
 import se.dandel.test.jpa.domain.DepartmentEO;
 import se.dandel.test.jpa.domain.EmployeeEO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
-
-import com.google.inject.Inject;
 
 public class StandaloneEntityButDependentToAnotherTest {
 	@Rule
@@ -35,7 +35,10 @@ public class StandaloneEntityButDependentToAnotherTest {
 
 	@Test
 	public void crud() {
-		EmployeeEO employee = employeeDAO.create("A employee", department);
+		EmployeeEO employee = new EmployeeEO();
+		employee.setDepartment(department);
+		employee.setName("A employee");
+		employeeDAO.persist(employee);
 
 		mgr.reset();
 
@@ -50,7 +53,8 @@ public class StandaloneEntityButDependentToAnotherTest {
 		mgr.reset();
 
 		String newName = "Another employee";
-		employeeDAO.update(employee.getId(), newName);
+		employee = employeeDAO.get(employee.getId());
+		employee.setName(newName);
 
 		mgr.reset();
 

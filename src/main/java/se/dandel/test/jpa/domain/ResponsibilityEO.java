@@ -17,7 +17,7 @@ public class ResponsibilityEO {
 
 	@MapsId("departmentId")
 	@ManyToOne
-	@PrimaryKeyJoinColumn(name = "DEPARTMENT_ID")
+	@PrimaryKeyJoinColumn
 	private DepartmentEO department;
 
 	@SuppressWarnings("unused")

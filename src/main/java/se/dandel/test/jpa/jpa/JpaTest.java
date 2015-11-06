@@ -7,8 +7,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import se.dandel.test.jpa.domain.EmployeeEO;
 import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.domain.EmployeeEO;
 
 public class JpaTest {
 
@@ -17,6 +17,7 @@ public class JpaTest {
 	public JpaTest(EntityManager manager) {
 		this.manager = manager;
 	}
+
 	/**
 	 * @param args
 	 */
@@ -39,21 +40,23 @@ public class JpaTest {
 		System.out.println(".. done");
 	}
 
-
-
-
 	private void createEmployees() {
 		int numOfEmployees = manager.createQuery("Select a From Employee a", EmployeeEO.class).getResultList().size();
 		if (numOfEmployees == 0) {
 			DepartmentEO department = new DepartmentEO("java");
 			manager.persist(department);
 
-			manager.persist(new EmployeeEO("Jakab Gipsz",department));
-			manager.persist(new EmployeeEO("Captain Nemo",department));
+			EmployeeEO entity = new EmployeeEO();
+			entity.setName("Jakab Gipsz");
+			entity.setDepartment(department);
+			manager.persist(entity);
+			EmployeeEO employee2 = new EmployeeEO();
+			employee2.setName("Captain Nemo");
+			employee2.setDepartment(department);
+			manager.persist(employee2);
 
 		}
 	}
-
 
 	private void listEmployees() {
 		List<EmployeeEO> resultList = manager.createQuery("Select a From Employee a", EmployeeEO.class).getResultList();
@@ -62,6 +65,5 @@ public class JpaTest {
 			System.out.println("next employee: " + next);
 		}
 	}
-
 
 }
