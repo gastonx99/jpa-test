@@ -34,18 +34,16 @@
 			<artifactId>guice</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derbytools</artifactId>
-			<scope>test</scope>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derbytools</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
