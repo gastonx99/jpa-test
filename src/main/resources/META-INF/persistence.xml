@@ -16,7 +16,7 @@
 			<property name="eclipselink.logging.level" value="SEVERE" />
 			<property name="eclipselink.logging.level.sql" value="SEVERE" />
 			<property name="eclipselink.logging.parameters" value="false" />
-			<property name="eclipselink.profiler" value="PerformanceMonitor" />
+<!-- 			<property name="eclipselink.profiler" value="PerformanceMonitor" /> -->
 		</properties>
 
 	</persistence-unit>

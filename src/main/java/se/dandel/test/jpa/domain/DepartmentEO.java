@@ -29,7 +29,7 @@ public class DepartmentEO {
 	@Column(unique = true)
 	private String name;
 
-	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<EmployeeEO> employees = new ArrayList<EmployeeEO>();
 
 	@OneToMany(mappedBy = "department", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
