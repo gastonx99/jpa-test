@@ -16,7 +16,7 @@ public class ManagedPerformanceTest {
 	private final Logger logger = Logger.getLogger(getClass());
 
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

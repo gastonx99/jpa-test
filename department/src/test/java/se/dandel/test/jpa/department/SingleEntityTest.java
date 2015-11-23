@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 public class SingleEntityTest {
 
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

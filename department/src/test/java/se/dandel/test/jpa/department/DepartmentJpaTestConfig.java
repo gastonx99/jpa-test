@@ -11,7 +11,7 @@ import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager.DdlGeneration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb", ddlGeneration = DdlGeneration.LIQUIBASE, sqlExplorer = false)
-public @interface JpaTestConfig {
+@GuiceJpaLiquibaseManager.Config(modules = GuiceModule.class, persistenceUnitName = "department-test", ddlGeneration = DdlGeneration.LIQUIBASE, sqlExplorer = false)
+public @interface DepartmentJpaTestConfig {
 
 }

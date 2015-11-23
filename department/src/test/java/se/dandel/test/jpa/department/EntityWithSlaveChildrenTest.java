@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 public class EntityWithSlaveChildrenTest {
 
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

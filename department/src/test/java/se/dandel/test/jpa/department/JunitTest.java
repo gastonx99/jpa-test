@@ -20,7 +20,7 @@ public class JunitTest {
 	private static final Logger logger = Logger.getLogger(JunitTest.class);
 
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

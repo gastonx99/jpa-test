@@ -11,7 +11,7 @@ import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager.DdlGeneration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-@GuiceJpaLiquibaseManager.Config(modules = CarGuiceModule.class, persistenceUnitName = "persistenceUnit-hsqldb", ddlGeneration = DdlGeneration.LIQUIBASE, sqlExplorer = false)
+@GuiceJpaLiquibaseManager.Config(modules = CarGuiceModule.class, persistenceUnitName = "car-test", ddlGeneration = DdlGeneration.LIQUIBASE, sqlExplorer = false)
 public @interface CarJpaTestConfig {
 
 }

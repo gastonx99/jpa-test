@@ -17,7 +17,7 @@ import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 public class StandaloneEntityButDependentToAnotherTest {
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

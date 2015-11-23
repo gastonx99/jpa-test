@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 public class OneToManySlavesTest {
 
 	@Rule
-	@JpaTestConfig
+	@DepartmentJpaTestConfig
 	public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
 	@Inject

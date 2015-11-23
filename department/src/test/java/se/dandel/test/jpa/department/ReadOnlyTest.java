@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 public class ReadOnlyTest {
 
     @Rule
-    @JpaTestConfig
+    @DepartmentJpaTestConfig
     @DataResource(resource = "department-data.xml")
     public GuiceJpaLiquibaseManager mgr = new GuiceJpaLiquibaseManager();
 
