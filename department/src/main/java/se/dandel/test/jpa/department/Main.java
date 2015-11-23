@@ -4,7 +4,7 @@ import java.util.List;
 
 import se.dandel.test.jpa.department.dao.DepartmentDAO;
 import se.dandel.test.jpa.department.domain.DepartmentEO;
-import se.dandel.test.jpa.guice.GuiceModule;
+import se.dandel.test.jpa.department.guice.GuiceModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;

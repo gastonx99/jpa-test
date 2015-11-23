@@ -1,10 +1,9 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.department;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-import javax.persistence.Column;
-import javax.persistence.PersistenceException;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +14,7 @@ import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 import com.google.inject.Inject;
 
-public class SingleEntityTest {
+public class OneToManySlavesTest {
 
 	@Rule
 	@JpaTestConfig
@@ -25,16 +24,17 @@ public class SingleEntityTest {
 	private DepartmentDAO dao;
 
 	@Test
-	public void crud() {
-		DepartmentEO department = dao.create("A department");
+	public void crudWithChildren() {
+		String name = "A department";
+		DepartmentEO department = new DepartmentEO();
+		department.setName(name);
+		dao.persist(department);
 
 		mgr.reset();
 
-		assertEquals(1, dao.findAll().size());
-
-		mgr.reset();
-
-		DepartmentEO found = dao.get(department.getId());
+		List<DepartmentEO> list = dao.findAll();
+		assertEquals(1, list.size());
+		DepartmentEO found = list.iterator().next();
 		assertNotSame(department, found);
 		assertEquals(department.getId(), found.getId());
 
@@ -45,7 +45,8 @@ public class SingleEntityTest {
 
 		mgr.reset();
 
-		found = dao.get(department.getId());
+		list = dao.findAll();
+		found = list.iterator().next();
 		assertEquals(newName, found.getName());
 
 		mgr.reset();
@@ -56,12 +57,4 @@ public class SingleEntityTest {
 		assertEquals(0, dao.findAll().size());
 	}
 
-	@Test(expected = PersistenceException.class)
-	public void nameUniqueness() throws Exception {
-		Column annotation = DepartmentEO.class.getDeclaredField("name").getAnnotation(Column.class);
-		annotation.unique();
-		dao.create("A department");
-		dao.create("A department");
-		mgr.reset();
-	}
 }

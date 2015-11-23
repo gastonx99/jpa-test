@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.department;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

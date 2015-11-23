@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.department;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

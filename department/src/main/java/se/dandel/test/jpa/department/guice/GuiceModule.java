@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.guice;
+package se.dandel.test.jpa.department.guice;
 
 import com.google.inject.AbstractModule;
 

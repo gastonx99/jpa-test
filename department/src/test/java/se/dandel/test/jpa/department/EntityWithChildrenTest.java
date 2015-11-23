@@ -1,4 +1,4 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.department;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.google.inject.Inject;
 
+import se.dandel.test.jpa.department.JpaTestConfig;
 import se.dandel.test.jpa.department.dao.DepartmentDAO;
 import se.dandel.test.jpa.department.domain.DepartmentEO;
 import se.dandel.test.jpa.department.domain.EmployeeEO;
