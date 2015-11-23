@@ -6,8 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.eclipse.persistence.sessions.SessionProfiler;
-import org.eclipse.persistence.tools.profiler.PerformanceMonitor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,8 +43,6 @@ public class EntityWithChildrenTest {
 
 	@Test
 	public void aChildsLifecycleManagedByParent() {
-		System.out.println("cachehits: " + getCacheHits());
-
 		// Add child
 		DepartmentEO department = departmentDAO.get(departmentId);
 		EmployeeEO employee = new EmployeeEO();
@@ -84,13 +80,5 @@ public class EntityWithChildrenTest {
 		department = departmentDAO.get(departmentId);
 		assertTrue(department.getEmployees().isEmpty());
 
-		System.out.println("cachehits: " + getCacheHits());
-
-	}
-
-	private Long getCacheHits() {
-		Long cacheHits = (Long) ((PerformanceMonitor) mgr.getSession().getProfiler()).getOperationTimings()
-				.get(SessionProfiler.CacheHits);
-		return cacheHits;
 	}
 }

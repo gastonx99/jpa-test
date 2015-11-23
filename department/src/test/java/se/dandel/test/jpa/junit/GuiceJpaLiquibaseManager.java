@@ -18,8 +18,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import org.apache.log4j.Logger;
-import org.eclipse.persistence.internal.jpa.EntityManagerImpl;
-import org.eclipse.persistence.sessions.Session;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
@@ -82,10 +80,6 @@ public class GuiceJpaLiquibaseManager implements MethodRule {
 
 	public EntityManager getEntityManager() {
 		return em;
-	}
-
-	public Session getSession() {
-		return ((EntityManagerImpl) em).getActiveSession();
 	}
 
 	@Override
