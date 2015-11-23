@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.domain;
+package se.dandel.test.jpa.department.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

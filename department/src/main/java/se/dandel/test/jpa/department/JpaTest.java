@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.jpa;
+package se.dandel.test.jpa.department;
 
 import java.util.List;
 
@@ -7,8 +7,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import se.dandel.test.jpa.domain.DepartmentEO;
-import se.dandel.test.jpa.domain.EmployeeEO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
+import se.dandel.test.jpa.department.domain.EmployeeEO;
 
 public class JpaTest {
 

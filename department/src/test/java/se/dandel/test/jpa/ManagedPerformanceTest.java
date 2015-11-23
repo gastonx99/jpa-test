@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.google.inject.Inject;
 
-import se.dandel.test.jpa.dao.DepartmentDAO;
+import se.dandel.test.jpa.department.dao.DepartmentDAO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 @Ignore

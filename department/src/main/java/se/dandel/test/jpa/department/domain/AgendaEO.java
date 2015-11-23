@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.domain;
+package se.dandel.test.jpa.department.domain;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -10,10 +10,11 @@ import javax.persistence.Table;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
-@Table(name = "responsibility")
-public class ResponsibilityEO {
+@Table(name = "agenda")
+public class AgendaEO {
+
 	@EmbeddedId
-	private ResponsibilityPk pk;
+	private AgendaPk pk;
 
 	@MapsId("departmentId")
 	@ManyToOne
@@ -21,12 +22,12 @@ public class ResponsibilityEO {
 	private DepartmentEO department;
 
 	@SuppressWarnings("unused")
-	private ResponsibilityEO() {
+	private AgendaEO() {
 
 	}
 
-	public ResponsibilityEO(String name, DepartmentEO department) {
-		this.pk = new ResponsibilityPk(department.getId(), name);
+	public AgendaEO(String name, DepartmentEO department) {
+		this.pk = new AgendaPk(department.getId(), name);
 		this.department = department;
 	}
 

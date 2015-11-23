@@ -8,8 +8,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 
-import se.dandel.test.jpa.dao.DepartmentDAO;
-import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.department.dao.DepartmentDAO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
 import se.dandel.test.jpa.junit.DataResource;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 

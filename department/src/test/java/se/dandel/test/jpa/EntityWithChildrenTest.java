@@ -12,10 +12,10 @@ import org.junit.Test;
 
 import com.google.inject.Inject;
 
-import se.dandel.test.jpa.dao.DepartmentDAO;
-import se.dandel.test.jpa.dao.EmployeeDAO;
-import se.dandel.test.jpa.domain.DepartmentEO;
-import se.dandel.test.jpa.domain.EmployeeEO;
+import se.dandel.test.jpa.department.dao.DepartmentDAO;
+import se.dandel.test.jpa.department.dao.EmployeeDAO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
+import se.dandel.test.jpa.department.domain.EmployeeEO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 public class EntityWithChildrenTest {

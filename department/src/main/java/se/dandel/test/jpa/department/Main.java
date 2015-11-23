@@ -1,9 +1,9 @@
-package se.dandel.test.jpa;
+package se.dandel.test.jpa.department;
 
 import java.util.List;
 
-import se.dandel.test.jpa.dao.DepartmentDAO;
-import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.department.dao.DepartmentDAO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
 import se.dandel.test.jpa.guice.GuiceModule;
 
 import com.google.inject.Guice;

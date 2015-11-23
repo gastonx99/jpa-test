@@ -9,8 +9,8 @@ import javax.persistence.PersistenceException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import se.dandel.test.jpa.dao.DepartmentDAO;
-import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.department.dao.DepartmentDAO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
 
 import com.google.inject.Inject;

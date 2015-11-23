@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.domain;
+package se.dandel.test.jpa.department.domain;
 
 import java.util.ArrayList;
 import java.util.Collections;

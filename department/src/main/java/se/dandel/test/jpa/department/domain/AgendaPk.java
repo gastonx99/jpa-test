@@ -1,22 +1,22 @@
-package se.dandel.test.jpa.domain;
+package se.dandel.test.jpa.department.domain;
 
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class ResponsibilityPk implements Serializable {
+public class AgendaPk implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Long departmentId;
-
 	private String name;
 
-	public ResponsibilityPk() {
+	private Long departmentId;
+
+	public AgendaPk() {
 	}
 
-	public ResponsibilityPk(Long departmentId, String name) {
+	public AgendaPk(Long departmentId, String name) {
 		this.departmentId = departmentId;
 		this.name = name;
 	}
@@ -38,7 +38,7 @@ public class ResponsibilityPk implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ResponsibilityPk other = (ResponsibilityPk) obj;
+		AgendaPk other = (AgendaPk) obj;
 		if (departmentId == null) {
 			if (other.departmentId != null)
 				return false;
@@ -59,5 +59,4 @@ public class ResponsibilityPk implements Serializable {
 	public String getName() {
 		return name;
 	}
-
 }

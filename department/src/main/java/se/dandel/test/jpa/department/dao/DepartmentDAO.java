@@ -1,8 +1,9 @@
-package se.dandel.test.jpa.dao;
+package se.dandel.test.jpa.department.dao;
 
 import java.util.List;
 
-import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.dao.AbstractDAO;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
 
 public interface DepartmentDAO extends AbstractDAO<DepartmentEO> {
 

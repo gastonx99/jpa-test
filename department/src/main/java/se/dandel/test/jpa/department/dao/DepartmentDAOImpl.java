@@ -1,4 +1,4 @@
-package se.dandel.test.jpa.dao;
+package se.dandel.test.jpa.department.dao;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +7,8 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 
-import se.dandel.test.jpa.domain.DepartmentEO;
+import se.dandel.test.jpa.dao.AbstractDaoImpl;
+import se.dandel.test.jpa.department.domain.DepartmentEO;
 
 public class DepartmentDAOImpl extends AbstractDaoImpl<DepartmentEO> implements DepartmentDAO {
 
