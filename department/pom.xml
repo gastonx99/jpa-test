@@ -8,13 +8,11 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>department</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<dependencies>
 		<!-- Internal artifacts -->
 		<dependency>
 			<groupId>se.dandel.test.jpa</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		
 		

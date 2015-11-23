@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.google.inject.Inject;
 
 import se.dandel.test.jpa.department.dao.DepartmentDAO;
-import se.dandel.test.jpa.department.dao.EmployeeDAO;
 import se.dandel.test.jpa.department.domain.DepartmentEO;
 import se.dandel.test.jpa.department.domain.EmployeeEO;
 import se.dandel.test.jpa.junit.GuiceJpaLiquibaseManager;
@@ -26,9 +25,6 @@ public class EntityWithChildrenTest {
 
 	@Inject
 	private DepartmentDAO departmentDAO;
-
-	@Inject
-	private EmployeeDAO employeeDAO;
 
 	private Long departmentId;
 
